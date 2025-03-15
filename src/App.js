@@ -1,23 +1,55 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import AdminLogin from "./components/AdminLogin";
+import AdminPanel from "./components/AdminPanel";
+import UserPage from "./components/UserPage";
 
 function App() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) setIsAdmin(true);
+  }, []);
+
+  const handleLogin = () => {
+    setIsAdmin(true);
+    setShowAdminPanel(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAdmin(false);
+    setShowAdminPanel(false);
+  };
+
+  const togglePanel = () => {
+    if (showAdminPanel) {
+      // If switching to User Page, log out admin
+      handleLogout();
+    } else {
+      setShowAdminPanel(true);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <button onClick={togglePanel}>
+        {showAdminPanel ? "Go to User Page" : "Go to Admin Panel"}
+      </button>
+
+      {showAdminPanel ? (
+        isAdmin ? (
+          <>
+            <button onClick={handleLogout}>Logout</button>
+            <AdminPanel />
+          </>
+        ) : (
+          <AdminLogin onLogin={handleLogin} />
+        )
+      ) : (
+        <UserPage />
+      )}
     </div>
   );
 }
